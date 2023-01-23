@@ -18,10 +18,19 @@ db.once('open', function () {
 
 const PORT = process.env.PORT || 3001;
 
-app.get('/test', (request, response) => {
+app.get('/', (request, response) => {
 
-  response.send('test request received');
+  response.send('Welcome to my home');
 
+});
+
+app.get('/books', async (request, response) => {
+  let booksFromDb = await Book.find();
+  response.status(200).send(booksFromDb);
+})
+
+app.get('*', (request, response) => {
+  response.status(404).send('Sorry that page doesn\'t exist');
 });
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
