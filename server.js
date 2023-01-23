@@ -25,12 +25,21 @@ app.get('/', (request, response) => {
 });
 
 app.get('/books', async (request, response) => {
-  let booksFromDb = await Book.find();
-  response.status(200).send(booksFromDb);
+  try {
+    let booksFromDb = await Book.find();
+    response.status(200).send(booksFromDb);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
 })
 
 app.get('*', (request, response) => {
   response.status(404).send('Sorry that page doesn\'t exist');
+});
+
+app.use((error, request, response, next) => {
+  response.status(500).send(error.message);
 });
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
