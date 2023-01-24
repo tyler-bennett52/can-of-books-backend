@@ -9,6 +9,7 @@ const Book = require('./models/books');
 
 
 app.use(cors());
+app.use(express.json());
 mongoose.connect(process.env.MONGODB);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -33,6 +34,31 @@ app.get('/books', async (request, response) => {
     next(error);
   }
 })
+
+app.post('/books', postBook);
+
+async function postBook(request, response, next){
+  try {
+    let createdBook = await Book.create(request.body);
+    response.status(201).send(createdBook);
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+}
+
+app.delete('/books/:bookID', deleteBook);
+
+async function deleteBook(request,response, next){
+  try {
+    let id = request.params.bookID;
+    await Book.findByIdAndDelete(id);
+    response.status(200).send('Book Deleted');
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+}
 
 app.get('*', (request, response) => {
   response.status(404).send('Sorry that page doesn\'t exist');
