@@ -6,6 +6,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
 const Book = require('./models/books');
+const verifyUser = require('./auth');
 
 
 app.use(cors());
@@ -17,7 +18,7 @@ db.once('open', function () {
   console.log('Mongoose is connected');
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 app.get('/', (request, response) => {
 
@@ -25,9 +26,11 @@ app.get('/', (request, response) => {
 
 });
 
+app.use(verifyUser);
+
 app.get('/books', async (request, response) => {
   try {
-    let booksFromDb = await Book.find();
+    let booksFromDb = await Book.find({ email: request.user.email });
     response.status(200).send(booksFromDb);
   } catch (error) {
     console.log(error);
@@ -39,7 +42,7 @@ app.post('/books', postBook);
 
 async function postBook(request, response, next) {
   try {
-    let createdBook = await Book.create(request.body);
+    let createdBook = await Book.create({...request.body, email: request.user.email});
     response.status(201).send(createdBook);
   } catch (error) {
     console.log(error.message);
@@ -66,7 +69,7 @@ async function updateBook(request, response, next) {
   try {
     let bookId = request.params.bookId;
     let data = request.body;
-    const updatedBook = await Book.findByIdAndUpdate(bookId, data, {new: true, overwrite: true});
+    const updatedBook = await Book.findByIdAndUpdate(bookId, {...data, email: request.user.email}, { new: true, overwrite: true });
     console.log(data);
     response.status(200).send(updatedBook)
   } catch (error) {

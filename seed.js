@@ -11,7 +11,8 @@ async function seed() {
   await Book.create({
     title: 'Fellowship of the Ring',
     description: 'A book about men who love jewelry',
-    status: 'Read'
+    status: 'Read',
+    email: 'melanie.lynn.johnston@gmail.com'
   });
   await Book.create({
     title: 'The Two Towers',
